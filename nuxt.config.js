@@ -32,7 +32,10 @@ export default {
   /*
    ** Global CSS
    */
-  css: ["@/assets/css/resetr.css", "@/assets/css/common.css"],
+  css: [{
+    src: '~/assets/scss/app.scss',
+    lang: 'scss'
+  }],
 
   /*
    ** Plugins to load before mounting the App

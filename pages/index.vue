@@ -12,6 +12,20 @@
       <!-- Template for page description -->
       <p class="blog-description">{{ $prismic.asText(homepageContent.description) }}</p>
 
+      <!-- Check events exist -->
+      <div v-if="events.length !== 0" class="blog-main">
+        <!-- Template for events posts -->
+        <section v-for="event in events" :key="events.id" v-bind:event="event" class="event">
+          <!-- Here :post="post" passes the data to the component -->
+          <event-widget :event="event"></event-widget>
+        </section>
+      </div>
+      <!-- If no blog posts return message -->
+      <div v-else class="blog-main">
+        <p>No events published at this time.</p>
+      </div>
+
+
       <!-- Check blog posts exist -->
       <div v-if="posts.length !== 0" class="blog-main">
         <!-- Template for blog posts -->
@@ -25,17 +39,63 @@
         <p>No Posts published at this time.</p>
       </div>
     </article>
+
+    <div class="site-wrapper">
+      <TheHeader>
+      </TheHeader>
+      <main class="main" role="main">
+        <TopSection>
+        </TopSection>
+        <TurnOn>
+        </TurnOn>
+        <MixesSection>
+        </MixesSection>
+        <ShakeAss>
+        </ShakeAss>
+        <EventsSection>
+        </EventsSection>
+        <TheForm>
+        </TheForm>
+      </main>
+
+      <BottomPicture>
+      </BottomPicture>
+      <BottomSection>
+      </BottomSection>
+
+    </div>
+
   </section>
 </template>
 
 <script>
 // Importing blog posts widget
 import BlogWidget from '~/components/BlogWidget.vue'
+import EventWidget from '~/components/EventWidget.vue'
+import TheHeader from "~/components/TheHeader";
+import TopSection from "~/components/TopSection";
+import TurnOn from "~/components/TurnOn";
+import MixesSection from "~/components/MixesSection";
+import ShakeAss from "~/components/ShakeAss";
+import EventsSection from "~/components/EventsSection";
+import TheForm from "~/components/TheForm";
+import BottomPicture from "~/components/BottomPicture";
+import BottomSection from "~/components/BottomSection";
 
 export default {
   name: 'Home',
   components: {
-    BlogWidget
+    BlogWidget,
+    EventWidget,
+    BottomSection,
+    BottomPicture,
+    TheForm,
+    EventsSection,
+    ShakeAss,
+    MixesSection,
+    TurnOn,
+    TopSection,
+    TheHeader
   },
   head () {
     return {
@@ -47,7 +107,7 @@ export default {
       // Query to get blog home content
       const homepageContent = (await $prismic.api.getSingle('blog_home')).data
 
-      console.log('homepageContent', homepageContent)
+      console.log('home', homepageContent)
 
       // Query to get posts content to preview
       const blogPosts = await $prismic.api.query(
@@ -55,12 +115,19 @@ export default {
         { orderings : '[my.post.date desc]' }
       )
 
-      console.log('content', blogPosts)
+      // Query to get posts content to preview
+      const events = await $prismic.api.query(
+        $prismic.predicates.at("document.type", "events"),
+        { orderings : '[my.event.date desc]' }
+      )
+
+      console.log('events', events)
 
       // Returns data to be used in template
       return {
         homepageContent,
         posts: blogPosts.results,
+        events: events.results,
         image: homepageContent.image.url,
       }
     } catch (e) {
@@ -72,49 +139,4 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.home
-  max-width: 700px
-  margin: auto
-  text-align: center
-  .blog-avatar
-    height: 140px
-    width: 140px
-    border-radius: 50%
-    background-position: center
-    background-size: cover
-    margin: 1em auto
-  .blog-description
-    font-size: 18px
-    color: #9A9A9A
-    line-height: 30px
-    margin-bottom: 3rem
-    padding-bottom: 3rem
-    font-family: 'Lato', sans-serif
-    border-bottom: 1px solid #DADADA
-
-.blog-main
-  max-width: 700px
-  margin: auto
-  text-align: left
-  &.single img
-    width: 100%
-    height: auto
-  &.single a
-    text-decoration: none
-    background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.8) 75%)
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.8) 75%)
-    background-repeat: repeat-x
-    background-size: 2px 2px
-    background-position: 0 23px
-
-.blog-post
-  margin: 0
-  margin-bottom: 3rem
-
-@media (max-width: 767px)
-  .home
-    padding: 0 20px
-  .blog-main
-    padding: 0
-    font-size: 18px
 </style>
